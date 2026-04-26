@@ -27,8 +27,8 @@
 
 body {
   font-family: "Assistant", sans-serif;
-  background: radial-gradient(circle at top, #1e3a8a, #020617);
-  color: var(--ink);
+  background: linear-gradient(135deg, #eaf1ff, #c7dbff);
+  color: #1f2937;
 }
 
 button, select {
@@ -110,15 +110,11 @@ h1 {
 }
 
 .section-title {
-  margin: 10px 0 16px;
-  padding: 12px 16px;
-  border-radius: 18px;
-  color: #243450;
-  font-weight: 900;
-  background: linear-gradient(90deg, rgba(212,175,55,.19), rgba(255,255,255,.25));
-  border: 1px solid rgba(212,175,55,.18);
+  margin-top: 20px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #1e40af;
 }
-
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -143,7 +139,7 @@ select {
   border: 1px solid rgba(38, 51, 82, .16);
   border-radius: 16px;
   background: rgba(255,255,255,.82);
-  color: #172033;
+  background: #245ba387;
   padding: 0 13px;
   outline: none;
   transition: .2s;
@@ -322,13 +318,22 @@ select:focus {
 }
 
 .check-field {
-  background: var(--glass);
-  border: 1px solid var(--border);
-  padding: 12px;
-  border-radius: 14px;
-  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(0,0,0,0.1);
+  cursor: pointer;
 }
 
 .check-field:hover {
   background: rgba(59,130,246,0.15);
+}
+.checks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
 }
