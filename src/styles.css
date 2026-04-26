@@ -57,7 +57,7 @@ button, select {
 
 .eyebrow {
   margin: 0 0 8px;
-  color: #9a7624;
+  color: #242c9a;
   font-weight: 800;
   letter-spacing: .08em;
 }
@@ -139,7 +139,7 @@ select {
   border: 1px solid rgba(38, 51, 82, .16);
   border-radius: 16px;
   background: rgba(255,255,255,.82);
-  background: #245ba387;
+  color: #172033;
   padding: 0 13px;
   outline: none;
   transition: .2s;
@@ -288,11 +288,11 @@ select:disabled {
 }
 
 select {
-  background: var(--bg-soft);
-  color: white;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px;
+    background: #3369afcf;
+    color: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px;
 }
 
 select:focus {

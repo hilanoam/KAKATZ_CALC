@@ -371,7 +371,6 @@ function App() {
         <aside className="summary">
           <div className="summary-head">
             <span>תוצאה</span>
-            <strong>{canShow ? "נמצאה התאמה" : "ממתין לבחירה מלאה"}</strong>
           </div>
 
           {canShow ? (
@@ -388,25 +387,6 @@ function App() {
                 subtitle={form.isStationStart ? "שכר ברוטו כולל גמול א׳ + תוספת תחנה 710 ₪" : "שכר ברוטו כולל גמול א׳"}
               />
               <ResultCard title="שכר סופי להצגה" value={finalSalaryToShow} subtitle={subtitle} />
-
-              <div className="mini-table">
-                <div>
-                  <span>קוד מקצוע</span>
-                  <b>{result.professionCode}</b>
-                </div>
-                <div>
-                  <span>שלב</span>
-                  <b>{result.finalStep ?? "—"}</b>
-                </div>
-                <div>
-                  <span>דירוג בסיום</span>
-                  <b>{result.finalRating}</b>
-                </div>
-                <div>
-                  <span>דרגת סיום</span>
-                  <b>{result.finalOfficerRank}</b>
-                </div>
-              </div>
             </>
           ) : (
             <div className="empty">
