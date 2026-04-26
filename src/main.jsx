@@ -292,9 +292,6 @@ function App() {
         <div>
           <p className="eyebrow">מחשבון שכר</p>
           <h1>מחשבון שכר יציאה לקק״צ</h1>
-          <p className="lead">
-            בחירת מקצוע, רמת פעילות, קבוצת תמריץ, דרגות, ותק ודירוגים — והמערכת מחזירה את השכר לפי טבלת הנתונים.
-          </p>
         </div>
         <button className="ghost-btn" onClick={reset}>
           איפוס
@@ -303,7 +300,7 @@ function App() {
 
       <section className="layout">
         <form className="panel">
-          <div className="section-title">1. נתוני בסיס</div>
+          <div className="section-title">נתוני בסיס</div>
           <div className="grid">
             <SelectField label="מקצוע" value={form.profession} onChange={(v) => setField("profession", v)} options={options.professions} />
             <SelectField label="רמת פעילות" value={form.activityLevel} onChange={(v) => setField("activityLevel", v)} options={options.activityLevels} />
@@ -320,7 +317,7 @@ function App() {
             )}
           </div>
 
-          <div className="section-title">2. לפני יציאה לקורס קצינים</div>
+          <div className="section-title">לפני יציאה לקורס קצינים</div>
           <div className="grid">
             <SelectField label="דירוג לפני הקורס" value="אחיד" onChange={() => {}} options={["אחיד"]} disabled />
             <SelectField label='דרגת צח"ק' value={form.beforeRank} onChange={(v) => setField("beforeRank", v)} options={options.beforeRanks} />
@@ -347,7 +344,7 @@ function App() {
             />
           </div>
 
-          <div className="section-title">4. סיום קורס קצינים</div>
+          <div className="section-title">סיום קורס קצינים</div>
           <div className="grid">
             <SelectField label="דרגת סיום" value={form.finalOfficerRank} onChange={(v) => setField("finalOfficerRank", v)} options={options.finalOfficerRanks} />
             <SelectField label="דירוג בסיום" value={form.finalRating} onChange={(v) => setField("finalRating", v)} options={options.finalRatings} />
