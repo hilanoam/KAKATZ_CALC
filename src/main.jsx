@@ -1,0 +1,422 @@
+import React, { useMemo, useState } from "react";
+import { createRoot } from "react-dom/client";
+import { SALARY_DATA } from "./salaryData";
+import "./styles.css";
+
+const money = new Intl.NumberFormat("he-IL", {
+  style: "currency",
+  currency: "ILS",
+  maximumFractionDigits: 2,
+});
+
+function unique(values) {
+  return [...new Set(values.filter((v) => v !== null && v !== undefined && v !== ""))];
+}
+
+function byText(a, b) {
+  return String(a).localeCompare(String(b), "he");
+}
+
+function byNumberText(a, b) {
+  const na = Number(a);
+  const nb = Number(b);
+  if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
+  return byText(a, b);
+}
+
+function rankOrder(rank) {
+  const map = { 'רס"מ 0': 0, 'רס"מ 3': 3, 'רס"מ 5': 5, מפקח: 10, פקד: 20 };
+  return map[rank] ?? 999;
+}
+
+function formatValue(value) {
+  if (value === null || value === undefined || value === "") return "—";
+  if (typeof value === "number") return money.format(value);
+  return value;
+}
+
+function filterRows(filters) {
+  return SALARY_DATA.filter((row) =>
+    Object.entries(filters).every(([key, value]) => value === "" || row[key] === value)
+  );
+}
+
+function SelectField({ label, value, onChange, options, disabled = false, placeholder = "בחרי אפשרות" }) {
+  return (
+    <label className="field">
+      <span>{label}</span>
+      <select value={value} disabled={disabled || options.length === 0} onChange={(e) => onChange(e.target.value)}>
+        <option value="">{placeholder}</option>
+        {options.map((option) => (
+          <option key={String(option)} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function CheckField({ label, checked, onChange }) {
+  return (
+    <label className="check-field">
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <span>{label}</span>
+    </label>
+  );
+}
+
+function ResultCard({ title, value, subtitle }) {
+  return (
+    <div className="result-card">
+      <div className="result-title">{title}</div>
+      <div className="result-value">{formatValue(value)}</div>
+      {subtitle && <div className="result-subtitle">{subtitle}</div>}
+    </div>
+  );
+}
+
+function App() {
+  const [form, setForm] = useState({
+    profession: "",
+    activityLevel: "",
+    incentiveGroup: "",
+    beforeRank: "",
+    seniority: "",
+    courseStartRating: "",
+    courseStartRank: "",
+    finalOfficerRank: "",
+    finalRating: "",
+    saboteurLevel: "מוסמך",
+    isStationBefore : false,
+    isStationStart : false,
+    isStationFinal : false,
+    includeBenefitB: false,
+  });
+
+  const setField = (key, value) => {
+    setForm((prev) => {
+      const next = { ...prev, [key]: value };
+
+      const order = [
+        "profession",
+        "activityLevel",
+        "incentiveGroup",
+        "beforeRank",
+        "seniority",
+        "courseStartRating",
+        "courseStartRank",
+        "finalOfficerRank",
+        "finalRating",
+      ];
+
+      const changedIndex = order.indexOf(key);
+      if (changedIndex >= 0) {
+        order.slice(changedIndex + 1).forEach((field) => {
+          next[field] = "";
+        });
+      }
+
+      if (key === "profession" && value !== "חבלן") {
+        next.saboteurLevel = "מוסמך";
+      }
+
+      return next;
+    });
+  };
+
+  const options = useMemo(() => {
+    const professions = unique(SALARY_DATA.map((row) => row.profession)).sort(byText);
+
+    const baseRows = filterRows({ profession: form.profession });
+    const activityLevels = unique(baseRows.map((row) => row.activityLevel)).sort(byText);
+
+    const activityRows = filterRows({
+      profession: form.profession,
+      activityLevel: form.activityLevel,
+    });
+    const incentiveGroups = unique(activityRows.map((row) => row.incentiveGroup)).sort(byNumberText);
+
+    const incentiveRows = filterRows({
+      profession: form.profession,
+      activityLevel: form.activityLevel,
+      incentiveGroup: Number(form.incentiveGroup) || form.incentiveGroup,
+    });
+    const beforeRanks = unique(incentiveRows.map((row) => row.beforeRank)).sort(
+      (a, b) => rankOrder(a) - rankOrder(b)
+    );
+
+    const beforeRows = filterRows({
+      profession: form.profession,
+      activityLevel: form.activityLevel,
+      incentiveGroup: Number(form.incentiveGroup) || form.incentiveGroup,
+      beforeRank: form.beforeRank,
+    });
+    const seniorities = unique(beforeRows.map((row) => row.seniority)).sort(byNumberText);
+
+    const seniorityRows = filterRows({
+      profession: form.profession,
+      activityLevel: form.activityLevel,
+      incentiveGroup: Number(form.incentiveGroup) || form.incentiveGroup,
+      beforeRank: form.beforeRank,
+      seniority: Number(form.seniority) || form.seniority,
+    });
+    const courseStartRatings = unique(seniorityRows.map((row) => row.courseStartRating)).sort(byText);
+
+    const courseRatingRows = filterRows({
+      profession: form.profession,
+      activityLevel: form.activityLevel,
+      incentiveGroup: Number(form.incentiveGroup) || form.incentiveGroup,
+      beforeRank: form.beforeRank,
+      seniority: Number(form.seniority) || form.seniority,
+      courseStartRating: form.courseStartRating,
+    });
+    const courseStartRanks = unique(courseRatingRows.map((row) => row.courseStartRank)).sort(
+      (a, b) => rankOrder(a) - rankOrder(b)
+    );
+
+    const courseRankRows = filterRows({
+      profession: form.profession,
+      activityLevel: form.activityLevel,
+      incentiveGroup: Number(form.incentiveGroup) || form.incentiveGroup,
+      beforeRank: form.beforeRank,
+      seniority: Number(form.seniority) || form.seniority,
+      courseStartRating: form.courseStartRating,
+      courseStartRank: form.courseStartRank,
+    });
+    const finalOfficerRanks = unique(courseRankRows.map((row) => row.finalOfficerRank)).sort(
+      (a, b) => rankOrder(a) - rankOrder(b)
+    );
+
+    const finalRankRows = filterRows({
+      profession: form.profession,
+      activityLevel: form.activityLevel,
+      incentiveGroup: Number(form.incentiveGroup) || form.incentiveGroup,
+      beforeRank: form.beforeRank,
+      seniority: Number(form.seniority) || form.seniority,
+      courseStartRating: form.courseStartRating,
+      courseStartRank: form.courseStartRank,
+      finalOfficerRank: form.finalOfficerRank,
+    });
+    const finalRatings = unique(finalRankRows.map((row) => row.finalRating)).sort(byText);
+
+    return {
+      professions,
+      activityLevels,
+      incentiveGroups,
+      beforeRanks,
+      seniorities,
+      courseStartRatings,
+      courseStartRanks,
+      finalOfficerRanks,
+      finalRatings,
+    };
+  }, [form]);
+
+  const result = useMemo(() => {
+    if (!form.finalRating) return null;
+
+    return SALARY_DATA.find((row) =>
+      row.profession === form.profession &&
+      row.activityLevel === form.activityLevel &&
+      row.incentiveGroup === (Number(form.incentiveGroup) || form.incentiveGroup) &&
+      row.beforeRank === form.beforeRank &&
+      row.seniority === (Number(form.seniority) || form.seniority) &&
+      row.courseStartRating === form.courseStartRating &&
+      row.courseStartRank === form.courseStartRank &&
+      row.finalOfficerRank === form.finalOfficerRank &&
+      row.finalRating === form.finalRating
+    );
+  }, [form]);
+
+  const isSaboteur = form.profession === "חבלן";
+  let beforeSalaryToShow = null;
+  let startSalaryToShow = null;
+  let finalSalaryToShow = null;
+  let subtitle = "";
+
+  if (result) {
+    beforeSalaryToShow = result.beforeGrossWithBenefitA;
+    startSalaryToShow = result.courseStartGrossWithBenefitA;
+
+    if (form.isStationBefore && typeof beforeSalaryToShow === "number") {
+      beforeSalaryToShow += 710;
+    }
+
+    if (form.isStationStart && typeof startSalaryToShow === "number") {
+      startSalaryToShow += 710;
+    }
+    if (isSaboteur && form.saboteurLevel === "בכיר") {
+      finalSalaryToShow = form.includeBenefitB
+        ? result.finalGrossSeniorSaboteurWithBenefitB
+        : result.finalGrossSeniorSaboteur;
+
+      subtitle = form.includeBenefitB
+        ? "כולל רמת פעילות חבלן בכיר + גמול ב׳"
+        : "כולל רמת פעילות חבלן בכיר";
+    } else {
+      finalSalaryToShow = form.includeBenefitB
+        ? result.finalGrossWithBenefitB
+        : result.finalGross;
+
+      subtitle = form.includeBenefitB ? "כולל גמול ב׳" : "ללא גמול ב׳";
+    }
+
+    if (form.isStationFinal && typeof finalSalaryToShow === "number") {
+      finalSalaryToShow += 710;
+      subtitle += " + תוספת תחנה 710 ₪";
+    }
+  }
+
+  const canShow = Boolean(result);
+
+  const reset = () =>
+    setForm({
+      profession: "",
+      activityLevel: "",
+      incentiveGroup: "",
+      beforeRank: "",
+      seniority: "",
+      courseStartRating: "",
+      courseStartRank: "",
+      finalOfficerRank: "",
+      finalRating: "",
+      saboteurLevel: "מוסמך",
+      isStation: false,
+      includeBenefitB: false,
+    });
+
+  return (
+    <main className="page">
+      <section className="hero">
+        <div>
+          <p className="eyebrow">מחשבון שכר</p>
+          <h1>מחשבון שכר יציאה לקק״צ</h1>
+          <p className="lead">
+            בחירת מקצוע, רמת פעילות, קבוצת תמריץ, דרגות, ותק ודירוגים — והמערכת מחזירה את השכר לפי טבלת הנתונים.
+          </p>
+        </div>
+        <button className="ghost-btn" onClick={reset}>
+          איפוס
+        </button>
+      </section>
+
+      <section className="layout">
+        <form className="panel">
+          <div className="section-title">1. נתוני בסיס</div>
+          <div className="grid">
+            <SelectField label="מקצוע" value={form.profession} onChange={(v) => setField("profession", v)} options={options.professions} />
+            <SelectField label="רמת פעילות" value={form.activityLevel} onChange={(v) => setField("activityLevel", v)} options={options.activityLevels} />
+            <SelectField label="קבוצת תמריץ" value={form.incentiveGroup} onChange={(v) => setField("incentiveGroup", v)} options={options.incentiveGroups} />
+
+            {isSaboteur && (
+              <SelectField
+                label="סוג חבלן"
+                value={form.saboteurLevel}
+                onChange={(v) => setField("saboteurLevel", v)}
+                options={["מוסמך", "בכיר"]}
+                placeholder="בחרי סוג חבלן"
+              />
+            )}
+          </div>
+
+          <div className="section-title">2. לפני יציאה לקורס קצינים</div>
+          <div className="grid">
+            <SelectField label="דירוג לפני הקורס" value="אחיד" onChange={() => {}} options={["אחיד"]} disabled />
+            <SelectField label='דרגת צח"ק' value={form.beforeRank} onChange={(v) => setField("beforeRank", v)} options={options.beforeRanks} />
+            <SelectField label="שנות ותק" value={form.seniority} onChange={(v) => setField("seniority", v)} options={options.seniorities} />
+          </div>
+          <div className="checks">
+            <CheckField
+              label="משרת בתחנה — תוספת 710 ₪"
+              checked={form.isStationBefore}
+              onChange={(v) => setField("isStationBefore", v)}
+            />
+          </div>
+
+          <div className="section-title">3. תחילת קורס קצינים</div>
+          <div className="grid">
+            <SelectField label="דירוג אליו קודם" value={form.courseStartRating} onChange={(v) => setField("courseStartRating", v)} options={options.courseStartRatings} />
+            <SelectField label="דרגה אליה הועלה" value={form.courseStartRank} onChange={(v) => setField("courseStartRank", v)} options={options.courseStartRanks} />
+          </div>
+          <div className="checks">
+            <CheckField
+              label="משרת בתחנה — תוספת 710 ₪"
+              checked={form.isStationStart}
+              onChange={(v) => setField("isStationStart", v)}
+            />
+          </div>
+
+          <div className="section-title">4. סיום קורס קצינים</div>
+          <div className="grid">
+            <SelectField label="דרגת סיום" value={form.finalOfficerRank} onChange={(v) => setField("finalOfficerRank", v)} options={options.finalOfficerRanks} />
+            <SelectField label="דירוג בסיום" value={form.finalRating} onChange={(v) => setField("finalRating", v)} options={options.finalRatings} />
+          </div>
+          <div className="checks">
+            <CheckField
+              label="משרת בתחנה — תוספת 710 ₪"
+              checked={form.isStationFinal}
+              onChange={(v) => setField("isStationFinal", v)}
+            />
+            </div>
+            <div className="checks">
+            <CheckField
+              label="כולל גמול ב׳"
+              checked={form.includeBenefitB}
+              onChange={(v) => setField("includeBenefitB", v)}
+            />
+            </div>
+        </form>
+
+        <aside className="summary">
+          <div className="summary-head">
+            <span>תוצאה</span>
+            <strong>{canShow ? "נמצאה התאמה" : "ממתין לבחירה מלאה"}</strong>
+          </div>
+
+          {canShow ? (
+            <>
+              <ResultCard
+                title="לפני קורס קצינים"
+                value={beforeSalaryToShow}
+                subtitle={form.isStationBefore ? "שכר ברוטו כולל גמול א׳ + תוספת תחנה 710 ₪" : "שכר ברוטו כולל גמול א׳"}
+              />
+
+              <ResultCard
+                title="בתחילת קורס קצינים"
+                value={startSalaryToShow}
+                subtitle={form.isStationStart ? "שכר ברוטו כולל גמול א׳ + תוספת תחנה 710 ₪" : "שכר ברוטו כולל גמול א׳"}
+              />
+              <ResultCard title="שכר סופי להצגה" value={finalSalaryToShow} subtitle={subtitle} />
+
+              <div className="mini-table">
+                <div>
+                  <span>קוד מקצוע</span>
+                  <b>{result.professionCode}</b>
+                </div>
+                <div>
+                  <span>שלב</span>
+                  <b>{result.finalStep ?? "—"}</b>
+                </div>
+                <div>
+                  <span>דירוג בסיום</span>
+                  <b>{result.finalRating}</b>
+                </div>
+                <div>
+                  <span>דרגת סיום</span>
+                  <b>{result.finalOfficerRank}</b>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="empty">
+              מלאי את כל השדות לפי הסדר. כל רשימה נפתחת רק לפי האפשרויות הקיימות בטבלה, כדי שלא תתקבל בחירה לא תקינה.
+            </div>
+          )}
+        </aside>
+      </section>
+    </main>
+  );
+}
+
+createRoot(document.getElementById("root")).render(<App />);
