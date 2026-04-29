@@ -406,10 +406,27 @@ select:focus {
 
 
 .logo {
-  width: 1190px;
-  height: 240px;
-  border-radius: 14px;
+  width: clamp(620px, 62vw, 2200px);
+  height: auto;
+
+  border-radius: 19px;
   background: white;
-  padding: 6px;
+ 
+
   box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+
+  display: block;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .logo {
+    max-width: 320px;
+  }
+}
+
+.hero-content {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
 }
