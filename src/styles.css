@@ -76,18 +76,28 @@ h1 {
 }
 
 .ghost-btn {
-  border: 1px solid rgba(154, 118, 36, .35);
-  color: #7b5c16;
-  background: rgba(255,255,255,.56);
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  color: white;
+  border: none;
+  padding: 10px 20px;
   border-radius: 999px;
-  padding: 11px 20px;
   cursor: pointer;
-  transition: .2s;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+
+  transition: all 0.25s ease;
 }
 
 .ghost-btn:hover {
-  transform: translateY(-1px);
-  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+}
+
+.ghost-btn:active {
+  transform: scale(0.97);
 }
 
 .layout {
@@ -336,4 +346,70 @@ select:focus {
   flex-direction: column;
   gap: 12px;
   margin-top: 10px;
+}
+
+.info-line {
+  margin: 12px 0;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+.danger-line {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.paid-salary {
+  margin-top: 16px;
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
+}
+
+.paid-salary strong {
+  font-size: 28px;
+}
+
+.disclaimer {
+  margin-top: 40px;
+  padding: 18px 20px;
+  border-radius: 18px;
+
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+
+  color: #b91c1c;
+  font-size: 14px;
+  line-height: 1.6;
+
+  text-align: center;
+}
+
+.disclaimer p {
+  margin: 6px 0;
+}
+
+
+.logo {
+  width: 1190px;
+  height: 240px;
+  border-radius: 14px;
+  background: white;
+  padding: 6px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
 }

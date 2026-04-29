@@ -1,3 +1,4 @@
+import logo from "./assets/logo.png";
 import React, { useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { SALARY_DATA } from "./salaryData";
@@ -81,6 +82,7 @@ function App() {
     profession: "",
     activityLevel: "",
     incentiveGroup: "",
+    beforeRating: "",
     beforeRank: "",
     seniority: "",
     courseStartRating: "",
@@ -88,42 +90,71 @@ function App() {
     finalOfficerRank: "",
     finalRating: "",
     saboteurLevel: "מוסמך",
-    isStationBefore : false,
-    isStationStart : false,
-    isStationFinal : false,
+    isStationBefore: false,
+    isStationStart: false,
+    isStationFinal: false,
     includeBenefitB: false,
   });
 
-  const setField = (key, value) => {
-    setForm((prev) => {
-      const next = { ...prev, [key]: value };
+const setField = (key, value) => {
+  setForm((prev) => {
+    const next = { ...prev, [key]: value };
 
-      const order = [
-        "profession",
-        "activityLevel",
-        "incentiveGroup",
-        "beforeRank",
-        "seniority",
-        "courseStartRating",
-        "courseStartRank",
-        "finalOfficerRank",
-        "finalRating",
-      ];
+    // אם בחרו מקצוע — נמלא אוטומטית רמת פעילות וקבוצת תמריץ
+    if (key === "profession") {
+      const rowsByProfession = SALARY_DATA.filter((row) => row.profession === value);
 
-      const changedIndex = order.indexOf(key);
-      if (changedIndex >= 0) {
-        order.slice(changedIndex + 1).forEach((field) => {
-          next[field] = "";
-        });
-      }
+      const firstActivity =
+        unique(rowsByProfession.map((row) => row.activityLevel)).sort(byText)[0] ?? "";
 
-      if (key === "profession" && value !== "חבלן") {
+      const rowsByActivity = rowsByProfession.filter(
+        (row) => row.activityLevel === firstActivity
+      );
+
+      const firstIncentive =
+        unique(rowsByActivity.map((row) => row.incentiveGroup)).sort(byNumberText)[0] ?? "";
+
+      next.activityLevel = firstActivity;
+      next.incentiveGroup = firstIncentive;
+
+      next.beforeRating = "";
+      next.beforeRank = "";
+      next.seniority = "";
+      next.courseStartRating = "";
+      next.courseStartRank = "";
+      next.finalOfficerRank = "";
+      next.finalRating = "";
+
+      if (value !== "חבלן") {
         next.saboteurLevel = "מוסמך";
       }
 
       return next;
-    });
-  };
+    }
+
+    const order = [
+      "activityLevel",
+      "incentiveGroup",
+      "beforeRating",
+      "beforeRank",
+      "seniority",
+      "courseStartRating",
+      "courseStartRank",
+      "finalOfficerRank",
+      "finalRating",
+    ];
+
+    const changedIndex = order.indexOf(key);
+
+    if (changedIndex >= 0) {
+      order.slice(changedIndex + 1).forEach((field) => {
+        next[field] = "";
+      });
+    }
+
+    return next;
+  });
+};
 
   const options = useMemo(() => {
     const professions = unique(SALARY_DATA.map((row) => row.profession)).sort(byText);
@@ -142,6 +173,7 @@ function App() {
       activityLevel: form.activityLevel,
       incentiveGroup: Number(form.incentiveGroup) || form.incentiveGroup,
     });
+    const beforeRatings = unique(incentiveRows.map((row) => row.beforeRating || "אחיד")).sort(byText);
     const beforeRanks = unique(incentiveRows.map((row) => row.beforeRank)).sort(
       (a, b) => rankOrder(a) - rankOrder(b)
     );
@@ -204,6 +236,7 @@ function App() {
       professions,
       activityLevels,
       incentiveGroups,
+      beforeRatings,
       beforeRanks,
       seniorities,
       courseStartRatings,
@@ -269,6 +302,25 @@ function App() {
   }
 
   const canShow = Boolean(result);
+  const courseAddition =
+    result && typeof startSalaryToShow === "number" && typeof beforeSalaryToShow === "number"
+      ? startSalaryToShow - beforeSalaryToShow
+      : 0;
+
+  const freezeAmount =
+    result && typeof startSalaryToShow === "number" && typeof finalSalaryToShow === "number"
+      ? Math.max(startSalaryToShow - finalSalaryToShow, 0)
+      : 0;
+
+  const paidSalary =
+    result
+      ? Math.max(
+          beforeSalaryToShow || 0,
+          startSalaryToShow || 0,
+          finalSalaryToShow || 0
+        )
+      : 0;
+
 
   const reset = () =>
     setForm({
@@ -282,17 +334,25 @@ function App() {
       finalOfficerRank: "",
       finalRating: "",
       saboteurLevel: "מוסמך",
-      isStation: false,
+      beforeRating: "",
+      isStationBefore: false,
+      isStationStart: false,
+      isStationFinal: false,
       includeBenefitB: false,
     });
 
   return (
     <main className="page">
+      <div className="hero-content">
+          <img src={logo} alt="logo" className="logo" />
+          </div>
       <section className="hero">
-        <div>
+        
+          <div>
           <p className="eyebrow">מחשבון שכר</p>
           <h1>מחשבון שכר יציאה לקק״צ</h1>
         </div>
+
         <button className="ghost-btn" onClick={reset}>
           איפוס
         </button>
@@ -317,9 +377,14 @@ function App() {
             )}
           </div>
 
-          <div className="section-title">לפני יציאה לקורס קצינים</div>
+          <div className="section-title"> בתחילת קורס קצינים</div>
           <div className="grid">
-            <SelectField label="דירוג לפני הקורס" value="אחיד" onChange={() => {}} options={["אחיד"]} disabled />
+            <SelectField
+              label="דירוג לפני הקורס"
+              value={form.beforeRating}
+              onChange={(v) => setField("beforeRating", v)}
+              options={options.beforeRatings}
+            />
             <SelectField label='דרגת צח"ק' value={form.beforeRank} onChange={(v) => setField("beforeRank", v)} options={options.beforeRanks} />
             <SelectField label="שנות ותק" value={form.seniority} onChange={(v) => setField("seniority", v)} options={options.seniorities} />
           </div>
@@ -331,7 +396,7 @@ function App() {
             />
           </div>
 
-          <div className="section-title">3. תחילת קורס קצינים</div>
+          <div className="section-title">בסיום קורס קצינים</div>
           <div className="grid">
             <SelectField label="דירוג אליו קודם" value={form.courseStartRating} onChange={(v) => setField("courseStartRating", v)} options={options.courseStartRatings} />
             <SelectField label="דרגה אליה הועלה" value={form.courseStartRank} onChange={(v) => setField("courseStartRank", v)} options={options.courseStartRanks} />
@@ -344,7 +409,7 @@ function App() {
             />
           </div>
 
-          <div className="section-title">סיום קורס קצינים</div>
+          <div className="section-title">מינוי</div>
           <div className="grid">
             <SelectField label="דרגת סיום" value={form.finalOfficerRank} onChange={(v) => setField("finalOfficerRank", v)} options={options.finalOfficerRanks} />
             <SelectField label="דירוג בסיום" value={form.finalRating} onChange={(v) => setField("finalRating", v)} options={options.finalRatings} />
@@ -373,25 +438,61 @@ function App() {
           {canShow ? (
             <>
               <ResultCard
-                title="לפני קורס קצינים"
+                title="בתחילת קורס קצינים"
                 value={beforeSalaryToShow}
-                subtitle={form.isStationBefore ? "שכר ברוטו כולל גמול א׳ + תוספת תחנה 710 ₪" : "שכר ברוטו כולל גמול א׳"}
+                subtitle={`דירוג: ${form.beforeRating || "אחיד"} | דרגה: ${form.beforeRank} | ותק: ${form.seniority} שנים | שכר ברוטו כולל גמול א׳`}
               />
 
+              <div className="info-line">
+                במהלך הקורס תתקבל תוספת על סך{" "}
+                <strong>{money.format(courseAddition)}</strong>{" "}
+                עקב העלייה בדרגה ובדירוג
+              </div>
+
               <ResultCard
-                title="בתחילת קורס קצינים"
+                title="בסיום קורס קצינים"
                 value={startSalaryToShow}
-                subtitle={form.isStationStart ? "שכר ברוטו כולל גמול א׳ + תוספת תחנה 710 ₪" : "שכר ברוטו כולל גמול א׳"}
+                subtitle={`דירוג: ${form.courseStartRating} | דרגה: ${form.courseStartRank} | ותק: ${form.seniority} שנים | שכר ברוטו כולל גמול א׳`}
               />
-              <ResultCard title="שכר סופי להצגה" value={finalSalaryToShow} subtitle={subtitle} />
+
+              <div className="info-line">
+                סכום ההקפאה לצורך שימור שכר:{" "}
+                <strong>{money.format(freezeAmount)}</strong>
+              </div>
+
+              <ResultCard
+                title="לאחר מינוי"
+                value={finalSalaryToShow}
+                subtitle={`דירוג: ${form.finalRating} | דרגה: ${form.finalOfficerRank} | שלב: ${result.finalStep ?? "—"} | ${form.includeBenefitB ? "שכר ברוטו כולל גמול ב׳" : "שכר ברוטו ללא גמול ב׳"}`}
+              />
+
+              <div className="danger-line">
+                השכר יכלול הקפאה על סך {money.format(freezeAmount)} ברוטו
+              </div>
+
+              <div className="paid-salary">
+                <span>שכר משולם בפועל:</span>
+                <strong>{money.format(paidSalary)}</strong>
+              </div>
             </>
           ) : (
             <div className="empty">
-              מלאי את כל השדות לפי הסדר. כל רשימה נפתחת רק לפי האפשרויות הקיימות בטבלה, כדי שלא תתקבל בחירה לא תקינה.
+              מלא את כל השדות לפי הסדר. כל רשימה נפתחת רק לפי האפשרויות הקיימות בטבלה, כדי שלא תתקבל בחירה לא תקינה.
             </div>
           )}
         </aside>
       </section>
+      <footer className="disclaimer">
+        <p>
+          חישובים אלה הינם בגדר אומדן בלבד, אינם סופיים ומבוססים על נתונים משוערים בלבד שטרם נבדקו ואומתו סופית והם כפופים לשינויים.
+        </p>
+        <p>
+          גרסה זו (גרסה 1) כוללת הסכמי שכר שניתנו בפועל עד תאריך 01.01.2026.
+        </p>
+        <p>
+          סימולציה קובעת תבוצע בסמוך ליציאתך לקורס קצינים ע"י חשבי מח' שכר וגמלאות
+        </p>
+      </footer>
     </main>
   );
 }
