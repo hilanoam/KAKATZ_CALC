@@ -350,7 +350,7 @@ const setField = (key, value) => {
         
           <div>
           <p className="eyebrow">מחשבון שכר</p>
-          <h1>מחשבון שכר יציאה לקק״צ</h1>
+          <h1>אומדן ראשוני למועמדים ליציאה לקורס קצינים</h1>
         </div>
 
         <button className="ghost-btn" onClick={reset}>
@@ -390,7 +390,7 @@ const setField = (key, value) => {
           </div>
           <div className="checks">
             <CheckField
-              label="משרת בתחנה — תוספת 710 ₪"
+              label="משרת בתחנה"
               checked={form.isStationBefore}
               onChange={(v) => setField("isStationBefore", v)}
             />
@@ -403,7 +403,7 @@ const setField = (key, value) => {
           </div>
           <div className="checks">
             <CheckField
-              label="משרת בתחנה — תוספת 710 ₪"
+              label="משרת בתחנה"
               checked={form.isStationStart}
               onChange={(v) => setField("isStationStart", v)}
             />
@@ -416,7 +416,7 @@ const setField = (key, value) => {
           </div>
           <div className="checks">
             <CheckField
-              label="משרת בתחנה — תוספת 710 ₪"
+              label="משרת בתחנה"
               checked={form.isStationFinal}
               onChange={(v) => setField("isStationFinal", v)}
             />
@@ -477,7 +477,7 @@ const setField = (key, value) => {
             </>
           ) : (
             <div className="empty">
-              מלא את כל השדות לפי הסדר. כל רשימה נפתחת רק לפי האפשרויות הקיימות בטבלה, כדי שלא תתקבל בחירה לא תקינה.
+              מלא את כל השדות לפי הסדר.
             </div>
           )}
         </aside>
