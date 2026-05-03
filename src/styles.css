@@ -430,3 +430,13 @@ select:focus {
   justify-content: center;
   margin-bottom: 10px;
 }
+.money-value {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  gap: 6px;
+}
+
+/* הכי חשוב 👇 */
+.result-value {
+  direction: ltr;
+}

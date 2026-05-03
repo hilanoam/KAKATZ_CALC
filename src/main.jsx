@@ -5,8 +5,7 @@ import { SALARY_DATA } from "./salaryData";
 import "./styles.css";
 
 const money = new Intl.NumberFormat("he-IL", {
-  style: "currency",
-  currency: "ILS",
+  minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 });
 
@@ -30,10 +29,14 @@ function rankOrder(rank) {
   return map[rank] ?? 999;
 }
 
-function formatValue(value) {
+function formatMoney(value) {
   if (value === null || value === undefined || value === "") return "—";
-  if (typeof value === "number") return money.format(value);
-  return value;
+  return `${money.format(Number(value))} ₪`;
+}
+
+function formatValue(value) {
+  if (typeof value === "number") return formatMoney(value);
+  return value || "—";
 }
 
 function filterRows(filters) {
@@ -71,7 +74,12 @@ function ResultCard({ title, value, subtitle }) {
   return (
     <div className="result-card">
       <div className="result-title">{title}</div>
-      <div className="result-value">{formatValue(value)}</div>
+
+      <div className="result-value money-value">
+        <span className="amount">{money.format(Number(value))}</span>
+        <span className="shekel">₪</span>
+      </div>
+
       {subtitle && <div className="result-subtitle">{subtitle}</div>}
     </div>
   );
@@ -445,7 +453,7 @@ const setField = (key, value) => {
 
               <div className="info-line">
                 במהלך הקורס תתקבל תוספת על סך{" "}
-                <strong>{money.format(courseAddition)}</strong>{" "}
+                <strong>{formatMoney(courseAddition)}</strong>{" "}
                 עקב העלייה בדרגה ובדירוג
               </div>
 
@@ -457,7 +465,7 @@ const setField = (key, value) => {
 
               <div className="info-line">
                 סכום ההקפאה לצורך שימור שכר:{" "}
-                <strong>{money.format(freezeAmount)}</strong>
+                <strong>{formatMoney(freezeAmount)}</strong>
               </div>
 
               <ResultCard
@@ -467,12 +475,12 @@ const setField = (key, value) => {
               />
 
               <div className="danger-line">
-                השכר יכלול הקפאה על סך {money.format(freezeAmount)} ברוטו
+                השכר יכלול הקפאה על סך {formatMoney(freezeAmount)} ברוטו
               </div>
 
               <div className="paid-salary">
                 <span>שכר משולם בפועל:</span>
-                <strong>{money.format(paidSalary)}</strong>
+                <strong>{formatMoney(paidSalary)}</strong>
               </div>
             </>
           ) : (
