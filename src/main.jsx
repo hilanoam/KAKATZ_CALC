@@ -108,38 +108,26 @@ const setField = (key, value) => {
   setForm((prev) => {
     const next = { ...prev, [key]: value };
 
-    // אם בחרו מקצוע — נמלא אוטומטית רמת פעילות וקבוצת תמריץ
-    if (key === "profession") {
-      const rowsByProfession = SALARY_DATA.filter((row) => row.profession === value);
 
-      const firstActivity =
-        unique(rowsByProfession.map((row) => row.activityLevel)).sort(byText)[0] ?? "";
+    // כאשר מחליפים מקצוע - נאפס את כל השדות התלויים,
+  // אך לא נמלא אוטומטית את רמת הפעילות וקבוצת התמריץ
+  if (key === "profession") {
+    next.activityLevel = "";
+    next.incentiveGroup = "";
+    next.beforeRating = "";
+    next.beforeRank = "";
+    next.seniority = "";
+    next.courseStartRating = "";
+    next.courseStartRank = "";
+    next.finalOfficerRank = "";
+    next.finalRating = "";
 
-      const rowsByActivity = rowsByProfession.filter(
-        (row) => row.activityLevel === firstActivity
-      );
-
-      const firstIncentive =
-        unique(rowsByActivity.map((row) => row.incentiveGroup)).sort(byNumberText)[0] ?? "";
-
-      next.activityLevel = firstActivity;
-      next.incentiveGroup = firstIncentive;
-
-      next.beforeRating = "";
-      next.beforeRank = "";
-      next.seniority = "";
-      next.courseStartRating = "";
-      next.courseStartRank = "";
-      next.finalOfficerRank = "";
-      next.finalRating = "";
-
-      if (value !== "חבלן") {
-        next.saboteurLevel = "מוסמך";
-      }
-
-      return next;
+    if (value !== "חבלן") {
+      next.saboteurLevel = "מוסמך";
     }
 
+    return next;
+  }
     const order = [
       "activityLevel",
       "incentiveGroup",
